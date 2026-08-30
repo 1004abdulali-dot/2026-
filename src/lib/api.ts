@@ -1,6 +1,6 @@
 export const api = (path: string, init?: RequestInit) => {
-  // Vercel 환경변수(VITE_API_URL)가 있으면 렌더 서버 주소를 쓰고, 없으면 로컬 주소를 씁니다.
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+  // 환경변수가 안 먹힐 경우를 대비해 렌더 주소를 직접 입력합니다.
+  const baseUrl = import.meta.env.VITE_API_URL || 'https://two026-sungduckartclass.onrender.com';
   
   const cleanBase = baseUrl.replace(/\/+$/, '');
   const cleanPath = path.replace(/^\/+/, '');
