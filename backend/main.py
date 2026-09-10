@@ -4,9 +4,8 @@ import base64
 from datetime import datetime
 from typing import Literal
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-DB_PATH = "./data/app.db"
+DB_PATH = "/workspace/data/app.db"
 MATERIALS = {"연필", "볼펜", "색연필", "사인펜"}
 def get_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
@@ -42,13 +41,6 @@ def init_db():
         ]:
             conn.execute("INSERT OR IGNORE INTO drawings(image_id, art, detail) VALUES(?,?,?)", (image_id, art, detail))
 app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 init_db()
 clients: set[WebSocket] = set()
 class VoteIn(BaseModel):
@@ -91,7 +83,7 @@ def state():
     return {"step": step, "votes": votes, "messages": messages, "drawings": drawings}
 @app.post("/api/step/{step}")
 async def set_step(step: int):
-    if step not in (1, 2, 3):
+    if step not in (1, 2):
         raise HTTPException(400, "올바른 단계가 아닙니다.")
     with get_db() as conn:
         conn.execute("UPDATE session_state SET step=? WHERE id=1", (step,))
@@ -157,10 +149,7 @@ async def vote(payload: VoteIn):
 @app.post("/api/questions")
 async def question(payload: MessageIn):
     return await save_message(payload, "question")
-@app.post("/api/keywords")
-async def keyword(payload: MessageIn):
-    return await save_message(payload, "keyword")
-async def save_message(payload: MessageIn, kind: Literal["question", "keyword"]):
+async def save_message(payload: MessageIn, kind: Literal["question"]):
     if payload.material not in MATERIALS:
         raise HTTPException(400, "재료를 확인해 주세요.")
     with get_db() as conn:

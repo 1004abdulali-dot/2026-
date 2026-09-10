@@ -1,14 +1,19 @@
 import { useState } from 'react'
+
 type Vote = { student_name: string; image_id: number; material: string }
 type Message = { id: number; student_name: string; kind: string; material: string; text: string }
 type Props = { step: number; votes: Vote[]; messages: Message[]; onStep: (step: number) => void; onReset: () => Promise<void> }
+
 export default function TeacherPanel({ step, votes, messages, onStep, onReset }: Props) {
   const [resetting, setResetting] = useState(false)
+  
   const activeNames = step === 1
     ? votes.map((vote) => vote.student_name)
-    : messages.filter((message) => message.kind === (step === 2 ? 'question' : 'keyword')).map((message) => message.student_name)
+    : messages.filter((message) => message.kind === 'question').map((message) => message.student_name)
+    
   const students = new Set(activeNames).size
-  const stepName = ['관찰하기', '질문하기', '느낌 모으기'][step - 1]
+  const stepName = ['관찰하기', '질문하기'][step - 1]
+  
   const reset = async () => {
     setResetting(true)
     try {
@@ -19,12 +24,13 @@ export default function TeacherPanel({ step, votes, messages, onStep, onReset }:
       setResetting(false)
     }
   }
+
   return <aside className="teacher-panel">
     <div className="teacher-heading"><span>👩‍🏫</span><div><b>선생님 진행판</b><small>모두의 화면이 함께 바뀌어요</small></div></div>
     <div className="step-controls">
       <button onClick={() => onStep(Math.max(1, step - 1))} disabled={step === 1}>← 이전</button>
       <div><strong>현재 {step}단계</strong><span>{stepName}</span></div>
-      <button className="next" onClick={() => onStep(Math.min(3, step + 1))} disabled={step === 3}>다음 단계로 →</button>
+      <button className="next" onClick={() => onStep(Math.min(2, step + 1))} disabled={step === 2}>다음 단계로 →</button>
     </div>
     <section className="stats">
       <h3>실시간 참여 현황</h3>
