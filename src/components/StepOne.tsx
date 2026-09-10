@@ -14,27 +14,16 @@ type Props = {
   onRevealAllAnswers: () => Promise<void>
 }
 
-export default function StepOne({ role, studentName, votes, drawings, onVote, onImageUpload, onAnswerChange, onRevealAllAnswers }: Props) {
+export default function StepOne({ role, studentName, votes, drawings, onVote, onAnswerChange, onRevealAllAnswers }: Props) {
   const [expanded, setExpanded] = useState<Drawing | null>(null)
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
-  const [busyImage, setBusyImage] = useState<number | null>(null)
   const [busyReveal, setBusyReveal] = useState(false)
   const [showAnswers, setShowAnswers] = useState(false)
   const drag = useRef<{ x: number; y: number } | null>(null)
 
   const open = (drawing: Drawing) => { setExpanded(drawing); setScale(1); setPosition({ x: 0, y: 0 }) }
-  const upload = (imageId: number, file?: File) => {
-    if (!file) return
-    if (!file.type.startsWith('image/')) return window.alert('사진 파일만 선택해 주세요.')
-    if (file.size > 4_500_000) return window.alert('사진은 4.5MB 이하로 선택해 주세요.')
-    const reader = new FileReader()
-    reader.onload = async () => {
-      setBusyImage(imageId)
-      try { await onImageUpload(imageId, String(reader.result)) } catch { window.alert('사진을 바꾸지 못했어요. 다시 시도해 주세요.') } finally { setBusyImage(null) }
-    }
-    reader.readAsDataURL(file)
-  }
+  
   const revealAll = async () => {
     if (drawings.some((drawing) => !drawing.answer_material)) return window.alert('네 그림의 정답을 모두 설정한 뒤 공개해 주세요.')
     setBusyReveal(true)
@@ -56,9 +45,14 @@ export default function StepOne({ role, studentName, votes, drawings, onVote, on
           const answer = drawing.answer_material || ''
           const revealed = Boolean(drawing.answer_revealed && answer)
           return <article className="drawing-card" key={drawing.image_id}>
-            <button type="button" className={`art-preview art-${drawing.image_id}`} onClick={() => open(drawing)} aria-label="그림 크게 보기">{drawing.image_data ? <img src={drawing.image_data} alt="관찰 그림" /> : <span>{drawing.art}</span>}<i>🔍 눌러서 크게 보기</i></button>
+            <button type="button" className={`art-preview art-${drawing.image_id}`} onClick={() => open(drawing)} aria-label="그림 크게 보기">
+              <img src={`/${drawing.image_id}.png`} alt="관찰 그림" />
+              <i>🔍 눌러서 크게 보기</i>
+            </button>
             <h3>이 그림의 재료는 무엇일까요?</h3>
-            {role === 'teacher' && <div className="teacher-drawing-tools"><label className="change-photo-button">{busyImage === drawing.image_id ? '변경 중…' : '사진 변경'}<input type="file" accept="image/*" onChange={(event) => upload(drawing.image_id, event.target.files?.[0])} /></label>{showAnswers && <div className="answer-settings"><span>정답 설정</span><div>{MATERIALS.map((material) => <button type="button" className={answer === material.name ? 'active' : ''} onClick={() => onAnswerChange(drawing.image_id, material.name)} key={material.name}>{material.icon} {material.name}</button>)}</div></div>}</div>}
+            {role === 'teacher' && <div className="teacher-drawing-tools">
+              {showAnswers && <div className="answer-settings"><span>정답 설정</span><div>{MATERIALS.map((material) => <button type="button" className={answer === material.name ? 'active' : ''} onClick={() => onAnswerChange(drawing.image_id, material.name)} key={material.name}>{material.icon} {material.name}</button>)}</div></div>}
+            </div>}
             {role === 'student' && <div className="choice-grid">{MATERIALS.map((material) => {
               const selected = mine === material.name
               const incorrect = revealed && selected && material.name !== answer
@@ -70,7 +64,9 @@ export default function StepOne({ role, studentName, votes, drawings, onVote, on
           </article>
         })}
       </div>
-      {expanded && <div className="art-modal" role="dialog" aria-modal="true" aria-label="그림 확대 보기" onMouseDown={() => setExpanded(null)}><div className="art-modal-card zoom-modal" onMouseDown={(event) => event.stopPropagation()}><button type="button" className="modal-close" onClick={() => setExpanded(null)} aria-label="확대 보기 닫기">×</button><h2>그림 자세히 보기</h2><p>사진을 드래그해서 움직이고, 아래 버튼으로 크기를 조절해 보세요.</p><div className="zoom-stage" onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag}>{expanded.image_data ? <img src={expanded.image_data} alt="확대 관찰 사진" draggable={false} style={{ transform: `translate(${position.x}px, ${position.y}px) scale(${scale})` }} /> : <span style={{ transform: `translate(${position.x}px, ${position.y}px) scale(${scale})` }}>{expanded.art}</span>}</div><div className="zoom-controls"><button type="button" onClick={() => zoom(-0.3)} disabled={scale <= 1}>－ 축소</button><strong>{Math.round(scale * 100)}%</strong><button type="button" onClick={() => zoom(0.3)} disabled={scale >= 3}>＋ 확대</button><button type="button" onClick={() => { setScale(1); setPosition({ x: 0, y: 0 }) }}>처음으로</button></div><button type="button" className="modal-confirm" onClick={() => setExpanded(null)}>다 봤어요</button></div></div>}
+      {expanded && <div className="art-modal" role="dialog" aria-modal="true" aria-label="그림 확대 보기" onMouseDown={() => setExpanded(null)}><div className="art-modal-card zoom-modal" onMouseDown={(event) => event.stopPropagation()}><button type="button" className="modal-close" onClick={() => setExpanded(null)} aria-label="확대 보기 닫기">×</button><h2>그림 자세히 보기</h2><p>사진을 드래그해서 움직이고, 아래 버튼으로 크기를 조절해 보세요.</p><div className="zoom-stage" onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag}>
+        <img src={`/${expanded.image_id}.png`} alt="확대 관찰 사진" draggable={false} style={{ transform: `translate(${position.x}px, ${position.y}px) scale(${scale})` }} />
+      </div><div className="zoom-controls"><button type="button" onClick={() => zoom(-0.3)} disabled={scale <= 1}>－ 축소</button><strong>{Math.round(scale * 100)}%</strong><button type="button" onClick={() => zoom(0.3)} disabled={scale >= 3}>＋ 확대</button><button type="button" onClick={() => { setScale(1); setPosition({ x: 0, y: 0 }) }}>처음으로</button></div><button type="button" className="modal-confirm" onClick={() => setExpanded(null)}>다 봤어요</button></div></div>}
     </section>
   )
 }
