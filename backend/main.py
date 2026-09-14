@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Literal
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
-DB_PATH = "app.db"
+DB_PATH = "data/app.db"
 MATERIALS = {"연필", "볼펜", "색연필", "사인펜"}
 def get_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
