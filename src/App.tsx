@@ -18,8 +18,26 @@ export default function App() {
 
   const refresh = useCallback(async () => { try { const response = await api('state'); if (!response.ok) throw new Error(); setState(await response.json()); setError('') } catch { setError('수업 연결을 확인하고 있어요. 잠시 후 다시 시도해 주세요.') } finally { setLoading(false) } }, [])
 
-  useEffect(() => { refresh(); const url = new URL(import.meta.env.BASE_URL + 'api/ws', window.location.href); url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'; let socket: WebSocket | undefined; try { socket = new WebSocket(url); socket.onmessage = () => refresh() } catch { /* fallback polling */ } const timer = window.setInterval(refresh, 4500); return () => { socket?.close(); window.clearInterval(timer) } }, [refresh])
-
+useEffect(() => { 
+    refresh(); 
+    
+    // Vercel(자기 자신) 대신 Render(백엔드) 주소를 직접 바라보도록 수정
+    const wssUrl = 'wss://two026-sungduckartclass.onrender.com/api/ws'; 
+    let socket: WebSocket | undefined; 
+    
+    try { 
+      socket = new WebSocket(wssUrl); 
+      socket.onmessage = () => refresh();
+    } catch { 
+      /* fallback polling */ 
+    } 
+    
+    const timer = window.setInterval(refresh, 4500); 
+    return () => { 
+      socket?.close(); 
+      window.clearInterval(timer);
+    } 
+  }, [refresh])
   const post = async (path: string, body?: unknown) => { const response = await api(path, { method: 'POST', headers: body ? { 'Content-Type': 'application/json' } : undefined, body: body ? JSON.stringify(body) : undefined }); if (!response.ok) throw new Error(); await refresh() }
 
   const resetSession = async () => {
