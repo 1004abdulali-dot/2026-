@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Literal
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
+from fastapi.middleware.cors import CORSMiddleware
 DB_PATH = "data/app.db"
 MATERIALS = {"연필", "볼펜", "색연필", "사인펜"}
 def get_db():
@@ -41,6 +42,13 @@ def init_db():
         ]:
             conn.execute("INSERT OR IGNORE INTO drawings(image_id, art, detail) VALUES(?,?,?)", (image_id, art, detail))
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://2026sungduck.vercel.app"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 init_db()
 clients: set[WebSocket] = set()
 class VoteIn(BaseModel):
