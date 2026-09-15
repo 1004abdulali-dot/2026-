@@ -134,7 +134,7 @@ export default function App() {
             <div style={{ textAlign: 'left', lineHeight: '1.6', fontSize: '1.05rem', color: '#2d3436', backgroundColor: '#f9f9f9', padding: '15px', borderRadius: '10px' }}>
               <p style={{ margin: '0 0 12px 0' }}><strong>1. 느낌 물어보기</strong><br/>"연필로 칠하니까 <b>[어떤 느낌]</b>이 나는데 왜 그럴까?"</p>
               <p style={{ margin: '0 0 12px 0' }}><strong>2. 차이점 찾기</strong><br/>"사인펜은 색연필과 다르게 왜 더 <b>[특징]</b>할까?"</p>
-              <p style={{ margin: 0 }}><strong>3. 해시태그(#)도 좋아요!</strong><br/><span style={{ color: '#0984e3' }}>#사각사각 #미끌미끌 #부드러워요</span></p>
+              <p style={{ margin: 0 }}><strong>3. 만약에 상상하기</strong><br/>"만약 볼펜을 <b>[새로운 방법]</b>(으)로 칠해본다면 어떻게 변할까?"</p>
             </div>
 
             <button 
