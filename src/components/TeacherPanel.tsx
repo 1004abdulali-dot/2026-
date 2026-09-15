@@ -100,7 +100,7 @@ export default function TeacherPanel({ step, votes, messages, onStep, onReset }:
                   <text x="20" y="40" fontSize="22" fontFamily="sans-serif" fontWeight="bold" fill="#333">1. 연필</text>
                   <text x="320" y="40" fontSize="22" fontFamily="sans-serif" fontWeight="bold" fill="#333">2. 볼펜</text>
                   <text x="20" y="330" fontSize="22" fontFamily="sans-serif" fontWeight="bold" fill="#333">3. 색연필</text>
-                  <text x="320" y="330" fontSize="22" fontFamily="sans-serif" fontWeight="bold" fill="#333">4. 사인펜</text>
+                  <text x="450" y="330" fontSize="22" fontFamily="sans-serif" fontWeight="bold" fill="#333">4. 사인펜</text>
                   <path d="M 300 150 Q 310 90 340 80" fill="none" stroke="#555" strokeWidth="6" strokeLinecap="round"/>
                   <path d="M 340 80 Q 390 70 390 110 Q 340 120 340 80" fill="none" stroke="black" strokeWidth="3"/>
                   <path d="M 300 160 C 380 120, 520 200, 480 360 C 440 500, 350 520, 300 480 C 250 520, 160 500, 120 360 C 80 200, 220 120, 300 160 Z" fill="none" stroke="black" strokeWidth="5" strokeLinejoin="round"/>
